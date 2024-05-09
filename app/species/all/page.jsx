@@ -1,5 +1,6 @@
 'use client'
 import AddSpecies from '@/app/component/AddSpecies';
+import apiClient from '@/app/libs/clientApi';
 import axios from 'axios';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -10,7 +11,7 @@ const AllSpecies = () => {
   useEffect(() => {
     const fetchSpecies = async () => {
       try {
-        const response = await axios.get('/api/species/all/read');
+        const response = await apiClient.get('/species/all');
         const data = await response.data;
 
         setAllSpecies(data);
@@ -24,7 +25,7 @@ const AllSpecies = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/species/${id}/delete`);
+      await apiClient.delete(`/species/${id}`);
       setAllSpecies(allSpecies.filter(species => species.id !== id));
     } catch (error) {
       console.error('Error deleting species:', error);
@@ -38,7 +39,8 @@ const AllSpecies = () => {
           {/* head */}
           <thead>
             <tr>
-              <th>Species Id</th>
+              <th>Id</th>
+              <th>Fao Code</th>
               <th>Type of Fish</th>
               <th>Scientific Name</th>
               <th>English Name</th>
@@ -55,6 +57,7 @@ const AllSpecies = () => {
             {allSpecies.map((species) => (
               <tr key={species.id}>
                 <td className='hover:underline hover:bg-zinc-600 bg-slate-600'><Link href={`/species/${species.id}`}>{species.id}</Link></td>
+                <td>{species.faoCode}</td>
                 <td>{species.typeOfFish}</td>
                 <td>{species.scientificName}</td>
                 <td>{species.englishName}</td>
