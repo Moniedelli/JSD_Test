@@ -1,27 +1,31 @@
 'use client'
+import { useState, useEffect } from 'react';
 import AddSpecies from '@/app/component/AddSpecies';
+import ProtectedRoute from '@/app/component/ProtecttedPage';
 import apiClient from '@/app/libs/clientApi';
-import axios from 'axios';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
 
 const AllSpecies = () => {
   const [allSpecies, setAllSpecies] = useState([]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchSpecies = async () => {
       try {
-        const response = await apiClient.get('/species/all');
-        const data = await response.data;
+        const response = await apiClient.get(`/species?PageNumber=${pageNumber}&PageSize=${pageSize}`);
+        const { data, metadata } = response.data;
 
         setAllSpecies(data);
+        setTotalPages(metadata.totalPages);
       } catch (error) {
         console.error('Error fetching all species:', error);
       }
     };
 
     fetchSpecies();
-  }, []);
+  }, [pageNumber, pageSize]);
 
   const handleDelete = async (id) => {
     try {
@@ -32,9 +36,16 @@ const AllSpecies = () => {
     }
   };
 
+  const handlePageChange = (newPageNumber) => {
+    if (newPageNumber >= 1 && newPageNumber <= totalPages) {
+      setPageNumber(newPageNumber);
+    }
+  };
+
   return (
-    <div className='m-10'>
-      <div className="overflow-x-auto p-10">
+    <ProtectedRoute>
+      <div className="overflow-x-auto">
+        <AddSpecies />
         <table className="table">
           {/* head */}
           <thead>
@@ -72,9 +83,21 @@ const AllSpecies = () => {
             ))}
           </tbody>
         </table>
-        <AddSpecies />
+        <div className="pagination">
+          <button onClick={() => handlePageChange(pageNumber - 1)} disabled={pageNumber === 1}>
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button key={index + 1} onClick={() => handlePageChange(index + 1)} disabled={index + 1 === pageNumber}>
+              {index + 1}
+            </button>
+          ))}
+          <button onClick={() => handlePageChange(pageNumber + 1)} disabled={pageNumber === totalPages}>
+            Next
+          </button>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 };
 

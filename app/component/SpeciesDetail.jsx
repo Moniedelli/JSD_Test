@@ -15,19 +15,6 @@ function SpeciesDetail({ species }) {
     fishUtilization
   } = species;
 
-  const { id } = useParams();
-
-  const [activeTab, setActiveTab] = useState('itinerary');
-
-  const showTab = (tabId) => {
-    setActiveTab(tabId);
-  };
-
-  const handleDateChange = (event) => {
-    // Update the selected date when the user picks a date
-    setSelectedDate(event.target.value);
-  };
-
   return (
     <div className="p-20">
       <div className="px-5 text-gray-300">
